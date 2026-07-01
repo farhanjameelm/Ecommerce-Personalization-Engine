@@ -40,7 +40,7 @@ class MockEventGenerator:
     ]
     
     @staticmethod
-    def generate_event(session_id: str, event_type: EventType = None) -> Event:
+    def generate_event(session_id: str, event_type: EventType = None) -> dict:
         """Generate a random event for a session."""
         if event_type is None:
             event_type = random.choice(list(EventType))
@@ -61,19 +61,19 @@ class MockEventGenerator:
             EventType.ADD_TO_CART, EventType.CART_VIEW, EventType.CHECKOUT_START
         ] else None
         
-        return Event(
-            event_type=event_type,
-            session_id=session_id,
-            product_id=product_id,
-            product_category=product_category,
-            page_url=page_url,
-            search_query=search_query,
-            coupon_code=coupon_code,
-            cart_value=cart_value,
-        )
+        return {
+            "event_type": event_type.value,
+            "session_id": session_id,
+            "product_id": product_id,
+            "product_category": product_category,
+            "page_url": page_url,
+            "search_query": search_query,
+            "coupon_code": coupon_code,
+            "cart_value": cart_value,
+        }
     
     @staticmethod
-    def generate_browser_sequence(session_id: str, count: int = 5) -> list[Event]:
+    def generate_browser_sequence(session_id: str, count: int = 5) -> list[dict]:
         """Generate a sequence typical of a browser."""
         events = []
         for i in range(count):
@@ -82,7 +82,7 @@ class MockEventGenerator:
         return events
     
     @staticmethod
-    def generate_comparer_sequence(session_id: str, count: int = 6) -> list[Event]:
+    def generate_comparer_sequence(session_id: str, count: int = 6) -> list[dict]:
         """Generate a sequence typical of a comparer."""
         events = []
         # View multiple products
@@ -95,7 +95,7 @@ class MockEventGenerator:
         return events
     
     @staticmethod
-    def generate_discount_seeker_sequence(session_id: str, count: int = 5) -> list[Event]:
+    def generate_discount_seeker_sequence(session_id: str, count: int = 5) -> list[dict]:
         """Generate a sequence typical of a discount seeker."""
         events = []
         events.append(MockEventGenerator.generate_event(session_id, EventType.VIEW_PROMO))
@@ -106,7 +106,7 @@ class MockEventGenerator:
         return events
     
     @staticmethod
-    def generate_cart_abandoner_sequence(session_id: str, count: int = 5) -> list[Event]:
+    def generate_cart_abandoner_sequence(session_id: str, count: int = 5) -> list[dict]:
         """Generate a sequence typical of a cart abandoner."""
         events = []
         events.append(MockEventGenerator.generate_event(session_id, EventType.PRODUCT_VIEW))
@@ -117,7 +117,7 @@ class MockEventGenerator:
         return events
     
     @staticmethod
-    def generate_loyal_customer_sequence(session_id: str, count: int = 4) -> list[Event]:
+    def generate_loyal_customer_sequence(session_id: str, count: int = 4) -> list[dict]:
         """Generate a sequence typical of a loyal customer."""
         events = []
         events.append(MockEventGenerator.generate_event(session_id, EventType.LOGIN))

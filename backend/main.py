@@ -62,24 +62,35 @@ async def create_session(request: CreateSessionRequest):
     session_id = str(uuid.uuid4())
     events = []
     
-    if request.preset:
-        if request.preset == "browser":
-            events = MockEventGenerator.generate_browser_sequence(session_id)
-        elif request.preset == "comparer":
-            events = MockEventGenerator.generate_comparer_sequence(session_id)
-        elif request.preset == "discount_seeker":
-            events = MockEventGenerator.generate_discount_seeker_sequence(session_id)
-        elif request.preset == "cart_abandoner":
-            events = MockEventGenerator.generate_cart_abandoner_sequence(session_id)
-        elif request.preset == "loyal_customer":
-            events = MockEventGenerator.generate_loyal_customer_sequence(session_id)
-    
-    session = Session(session_id=session_id, events=events)
-    classification = classifier.classify(events)
-    session.classification = classification
-    
-    sessions[session_id] = session
-    return {"session_id": session_id, "classification": classification.model_dump(mode='json')}
+    try:
+        if request.preset:
+            if request.preset == "browser":
+                event_dicts = MockEventGenerator.generate_browser_sequence(session_id)
+            elif request.preset == "comparer":
+                event_dicts = MockEventGenerator.generate_comparer_sequence(session_id)
+            elif request.preset == "discount_seeker":
+                event_dicts = MockEventGenerator.generate_discount_seeker_sequence(session_id)
+            elif request.preset == "cart_abandoner":
+                event_dicts = MockEventGenerator.generate_cart_abandoner_sequence(session_id)
+            elif request.preset == "loyal_customer":
+                event_dicts = MockEventGenerator.generate_loyal_customer_sequence(session_id)
+            else:
+                event_dicts = []
+            
+            # Convert dicts to Event objects
+            events = [Event(**e) for e in event_dicts]
+        
+        session = Session(session_id=session_id, events=events)
+        classification = classifier.classify(events)
+        session.classification = classification
+        
+        sessions[session_id] = session
+        return {"session_id": session_id, "classification": classification.model_dump(mode='json')}
+    except Exception as e:
+        print(f"Error creating session: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"error": str(e)}, 500
 
 
 @app.get("/api/sessions/{session_id}")
