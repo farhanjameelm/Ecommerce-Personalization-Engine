@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecommerce Personalization Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 24px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .session-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            font-size: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .classification-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .classification-card .state {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .classification-card .confidence {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .recommendation-box {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .recommendation-box .label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .recommendation-box .value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .evidence-list {
+            margin-top: 20px;
+        }
+
+        .evidence-item {
+            background: #f8fafc;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .evidence-item .description {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .evidence-item .meta {
+            font-size: 11px;
+            color: #666;
+            display: flex;
+            gap: 12px;
+        }
+
+        .event-stream {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+
+        .event-item {
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #667eea;
+            font-size: 13px;
+        }
+
+        .event-item .type {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .event-item .time {
+            color: #999;
+            font-size: 11px;
+            float: right;
+        }
+
+        .event-item .details {
+            color: #666;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .event-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .event-btn {
+            padding: 8px;
+            font-size: 11px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .event-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        .event-btn:active {
+            transform: translateY(0);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #10b981;
+            color: white;
+            margin-left: 8px;
+        }
+
+        .status-badge.disconnected {
+            background: #ef4444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 Ecommerce Personalization Engine</h1>
+            <p>Real-time shopper classification with evidence-based recommendations</p>
+            <span id="connectionStatus" class="status-badge disconnected">Disconnected</span>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel: Session Controls -->
+            <div class="panel">
+                <h2>Session Controls</h2>
+                <div class="session-controls">
+                    <button class="btn btn-primary" onclick="createSession('')">Create New Session</button>
+                    
+                    <div style="margin-top: 16px;">
+                        <label style="font-size: 13px; color: #666; font-weight: 600;">Or start with preset:</label>
+                        <div class="preset-buttons">
+                            <button class="preset-btn" onclick="createSession('browser')">👀 Browser</button>
+                            <button class="preset-btn" onclick="createSession('comparer')">⚖️ Comparer</button>
+                            <button class="preset-btn" onclick="createSession('discount_seeker')">🏷️ Discount Seeker</button>
+                            <button class="preset-btn" onclick="createSession('cart_abandoner')">🛒 Cart Abandoner</button>
+                            <button class="preset-btn" onclick="createSession('loyal_customer')">⭐ Loyal Customer</button>
+                        </div>
+                    </div>
+
+                    <div id="sessionInfo" style="margin-top: 20px; padding: 12px; background: #f8fafc; border-radius: 8px; display: none;">
+                        <div style="font-size: 12px; color: #666;">Session ID:</div>
+                        <div id="sessionId" style="font-size: 14px; font-weight: 600; color: #333; word-break: break-all;"></div>
+                        <div style="font-size: 12px; color: #666; margin-top: 8px;">Events: <span id="eventCount">0</span></div>
+                        <button class="btn btn-danger" style="margin-top: 12px; width: 100%;" onclick="deleteSession()">Delete Session</button>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 24px;">Add Events</h2>
+                <div class="event-controls">
+                    <button class="event-btn" onclick="addEvent('page_view')">Page View</button>
+                    <button class="event-btn" onclick="addEvent('product_view')">Product View</button>
+                    <button class="event-btn" onclick="addEvent('search')">Search</button>
+                    <button class="event-btn" onclick="addEvent('add_to_cart')">Add to Cart</button>
+                    <button class="event-btn" onclick="addEvent('cart_view')">View Cart</button>
+                    <button class="event-btn" onclick="addEvent('checkout_start')">Checkout</button>
+                    <button class="event-btn" onclick="addEvent('apply_coupon')">Apply Coupon</button>
+                    <button class="event-btn" onclick="addEvent('compare_products')">Compare</button>
+                    <button class="event-btn" onclick="addEvent('view_promo')">View Promo</button>
+                    <button class="event-btn" onclick="addEvent('login')">Login</button>
+                    <button class="event-btn" onclick="addEvent('purchase')">Purchase</button>
+                    <button class="event-btn" onclick="addEvent('remove_from_cart')">Remove</button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Classification & Events -->
+            <div>
+                <div class="panel" style="margin-bottom: 24px;">
+                    <h2>Classification Result</h2>
+                    <div id="classificationResult">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 16v-4M12 8h.01"/>
+                            </svg>
+                            <p>Create a session to see classification</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Event Stream</h2>
+                    <div id="eventStream" class="event-stream">
+                        <div class="empty-state">
+                            <p>No events yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+        let ws = null;
+
+        // Create a new session
+        async function createSession(preset) {
+            try {
+                const response = await fetch('/api/sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preset })
+                });
+                const data = await response.json();
+                
+                currentSessionId = data.session_id;
+                document.getElementById('sessionInfo').style.display = 'block';
+                document.getElementById('sessionId').textContent = currentSessionId;
+                document.getElementById('eventCount').textContent = '0';
+                
+                // Connect WebSocket
+                connectWebSocket();
+                
+                // Display classification
+                displayClassification(data.classification);
+                
+                // Clear event stream
+                document.getElementById('eventStream').innerHTML = '<div class="empty-state"><p>No events yet</p></div>';
+            } catch (error) {
+                console.error('Error creating session:', error);
+            }
+        }
+
+        // Delete current session
+        async function deleteSession() {
+            if (!currentSessionId) return;
+            
+            try {
+                await fetch(`/api/sessions/${currentSessionId}`, { method: 'DELETE' });
+                currentSessionId = null;
+                document.getElementById('sessionInfo').style.display = 'none';
+                document.getElementById('classificationResult').innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        <p>Create a session to see classification</p>
+                    </div>
+                `;
+                document.getElementById('eventStream').innerHTML = '<div class="empty-state"><p>No events yet</p></div>';
+                
+                if (ws) {
+                    ws.close();
+                    ws = null;
+                }
+                updateConnectionStatus(false);
+            } catch (error) {
+                console.error('Error deleting session:', error);
+            }
+        }
+
+        // Add an event to current session
+        async function addEvent(eventType) {
+            if (!currentSessionId) {
+                alert('Please create a session first');
+                return;
+            }
+
+            const eventData = {
+                event_type: eventType,
+                product_id: `prod_${Math.floor(Math.random() * 100)}`,
+                product_category: ['Electronics', 'Clothing', 'Home'][Math.floor(Math.random() * 3)],
+                page_url: `/products/${eventType}`,
+                search_query: eventType === 'search' ? 'wireless headphones' : null,
+                cart_value: eventType === 'add_to_cart' ? Math.floor(Math.random() * 500) : null,
+                coupon_code: eventType === 'apply_coupon' ? 'SAVE10' : null,
+            };
+
+            // Send via WebSocket for real-time update
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'add_event',
+                    event: eventData
+                }));
+            } else {
+                // Fallback to HTTP
+                try {
+                    const response = await fetch(`/api/sessions/${currentSessionId}/events`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(eventData)
+                    });
+                    const data = await response.json();
+                    displayClassification(data.classification);
+                    addEventToStream(data.event);
+                    updateEventCount();
+                } catch (error) {
+                    console.error('Error adding event:', error);
+                }
+            }
+        }
+
+        // Connect WebSocket for real-time updates
+        function connectWebSocket() {
+            if (ws) {
+                ws.close();
+            }
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws/${currentSessionId}`);
+
+            ws.onopen = () => {
+                updateConnectionStatus(true);
+                console.log('WebSocket connected');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'classification_update') {
+                    displayClassification(data.classification);
+                    addEventToStream(data.event);
+                    updateEventCount();
+                } else if (data.type === 'pong') {
+                    // Keep-alive response
+                }
+            };
+
+            ws.onclose = () => {
+                updateConnectionStatus(false);
+                console.log('WebSocket disconnected');
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                updateConnectionStatus(false);
+            };
+        }
+
+        // Update connection status indicator
+        function updateConnectionStatus(connected) {
+            const badge = document.getElementById('connectionStatus');
+            if (connected) {
+                badge.textContent = 'Connected';
+                badge.classList.remove('disconnected');
+            } else {
+                badge.textContent = 'Disconnected';
+                badge.classList.add('disconnected');
+            }
+        }
+
+        // Display classification result
+        function displayClassification(classification) {
+            const container = document.getElementById('classificationResult');
+            
+            const stateLabels = {
+                'browser': '👀 Browser',
+                'comparer': '⚖️ Comparer',
+                'discount_seeker': '🏷️ Discount Seeker',
+                'cart_abandoner': '🛒 Cart Abandoner',
+                'loyal_customer': '⭐ Loyal Customer'
+            };
+
+            const confidencePercent = Math.round(classification.confidence * 100);
+
+            container.innerHTML = `
+                <div class="classification-card">
+                    <div class="state">${stateLabels[classification.state]}</div>
+                    <div class="confidence">Confidence: ${confidencePercent}%</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${confidencePercent}%"></div>
+                    </div>
+                    <div class="recommendation-box">
+                        <div class="label">Recommended Action</div>
+                        <div class="value">${classification.recommended_action}</div>
+                    </div>
+                    <div class="recommendation-box" style="margin-top: 12px;">
+                        <div class="label">Suggested Nudge</div>
+                        <div class="value">${classification.recommended_nudge}</div>
+                    </div>
+                </div>
+                
+                <h3 style="font-size: 16px; color: #333; margin-bottom: 12px;">Evidence</h3>
+                <div class="evidence-list">
+                    ${classification.evidence.map(e => `
+                        <div class="evidence-item">
+                            <div class="description">${e.description}</div>
+                            <div class="meta">
+                                <span>Weight: ${(e.weight * 100).toFixed(0)}%</span>
+                                <span>Events: ${e.event_count}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Add event to stream display
+        function addEventToStream(event) {
+            const stream = document.getElementById('eventStream');
+            
+            // Remove empty state if present
+            if (stream.querySelector('.empty-state')) {
+                stream.innerHTML = '';
+            }
+
+            const eventLabels = {
+                'page_view': '📄 Page View',
+                'product_view': '👁️ Product View',
+                'search': '🔍 Search',
+                'add_to_cart': '🛒 Add to Cart',
+                'remove_from_cart': '❌ Remove from Cart',
+                'cart_view': '👀 View Cart',
+                'checkout_start': '💳 Start Checkout',
+                'checkout_complete': '✅ Complete Checkout',
+                'apply_coupon': '🎟️ Apply Coupon',
+                'view_promo': '📢 View Promo',
+                'compare_products': '⚖️ Compare Products',
+                'login': '🔑 Login',
+                'purchase': '💰 Purchase'
+            };
+
+            const time = new Date(event.timestamp).toLocaleTimeString();
+            const details = [];
+            if (event.product_id) details.push(`Product: ${event.product_id}`);
+            if (event.product_category) details.push(`Category: ${event.product_category}`);
+            if (event.search_query) details.push(`Query: ${event.search_query}`);
+            if (event.cart_value) details.push(`Value: $${event.cart_value.toFixed(2)}`);
+            if (event.coupon_code) details.push(`Coupon: ${event.coupon_code}`);
+
+            const eventHtml = `
+                <div class="event-item">
+                    <span class="type">${eventLabels[event.event_type] || event.event_type}</span>
+                    <span class="time">${time}</span>
+                    ${details.length ? `<div class="details">${details.join(' • ')}</div>` : ''}
+                </div>
+            `;
+
+            stream.insertAdjacentHTML('afterbegin', eventHtml);
+        }
+
+        // Update event count
+        function updateEventCount() {
+            if (!currentSessionId) return;
+            fetch(`/api/sessions/${currentSessionId}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('eventCount').textContent = data.events.length;
+                })
+                .catch(console.error);
+        }
+
+        // Keep WebSocket alive with periodic pings
+        setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ping' }));
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
