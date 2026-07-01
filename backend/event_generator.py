@@ -1,4 +1,4 @@
-from models import Event, EventType
+from backend.models import Event, EventType
 from datetime import datetime, timedelta
 import random
 

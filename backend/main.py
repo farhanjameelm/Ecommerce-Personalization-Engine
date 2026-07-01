@@ -5,12 +5,8 @@ from pydantic import BaseModel, ConfigDict
 from typing import Dict, List, Any
 import json
 import uuid
-import sys
 import os
 from datetime import datetime
-
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.models import Event, Session, ClassificationResult, EventType
 from backend.classifier import ShopperClassifier

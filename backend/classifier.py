@@ -1,5 +1,5 @@
 from typing import List, Dict
-from models import Event, ShopperState, Evidence, ClassificationResult, EventType
+from backend.models import Event, ShopperState, Evidence, ClassificationResult, EventType
 from datetime import datetime, timedelta
 
 
